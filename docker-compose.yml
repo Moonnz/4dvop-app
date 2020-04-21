@@ -1,11 +1,11 @@
 version: '3'
 services:
   nginx:
-    image: mynginx
+    image: moonnz/nginx-4dvop-app
     ports:
       - "8080:8080"
   haproxy:
-    image: myhaproxy
+    image: moonnz/haproxy-4dvop-app
     ports:
       - "80:80"
     depends_on:
