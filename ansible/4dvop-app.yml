@@ -1,34 +1,23 @@
 ---
-- hosts: web
-  tasks:
-    - name: ensure nginx is at the latest version
-      apt: name=nginx state=latest
-    - name: start nginx
-      service:
-          name: nginx
-          state: started
-    - name: Remove default website
-      file:
-        path: /var/www/html
-        state: absent
-    - name: Clone repo and move it
-      git:
-        repo: 'https://github.com/diranetafen/static-website-example'
-        dest: /var/www/html
-    - name: Modify nginx port
-      shell: sed -i 's/80 default_server/8080 default_server/g' /etc/nginx/sites-enabled/default
-    - name: restart nginx
-      service:
-        name: nginx
-        state: restarted
-    - name: ensure haproxy is at the latest version
-      apt: name=haproxy state=latest
-    - name: copy haproxy config file
-      copy:
-        src: /home/martin/ansible/files/haproxy.cfg
-        dest: /etc/haproxy/haproxy.cfg
-    - name: restart haproxy
-      service:
-        name: haproxy
-        state: restarted
 
+- hosts: all
+  become: true
+  tasks:
+    - name: Deploy 4dvop-nginx 
+      docker_container:
+        name: nginx
+        hostname: nginx
+        image: dirane/4dvop-nginx
+        state: started
+        ports:
+          - "8080:8080"
+    - name: Deploy 4dvop-haproxy
+      docker_container:
+        name: haproxy
+        hostname: haproxy 
+        image: dirane/4dvop-haproxy
+        state: started
+        links:  
+          - nginx:nginx
+        ports:
+          - "80:80"
